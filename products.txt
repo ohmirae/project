@@ -1,0 +1,19 @@
+상품 타입
+
+outer = T01
+bottom  = T02
+dress  = T03
+shoes&acc  = T04
+sale   = T05
+
+
+상품 번호
+
+
+outer = 1~100
+bottom  = 101~200
+dress  = 201~300
+shoes&acc  = 301~400
+sale   = 401~500
+
+

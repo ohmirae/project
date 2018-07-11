@@ -1,0 +1,176 @@
+-- 회원
+CREATE TABLE mem (
+	memId         VARCHAR2(30)  primary key,     
+	memName       VARCHAR2(30)  NOT NULL,   
+	memPassword   VARCHAR2(30)  NOT NULL,    
+	email         VARCHAR2(60)  NOT NULL,     
+	address       VARCHAR2(60)  NOT NULL,    
+	hp            VARCHAR2(30)  NOT NULL   
+ 
+);
+
+drop table mem;
+
+insert into mem values('alfos77','오미래','1234','alfos77@naver.com','경기도 시흥시','01077287934','여자');
+
+select * from mem;
+
+-- 회원
+CREATE UNIQUE INDEX PK_mem
+	ON mem ( -- 회원
+		memid DESC -- 회원 아이디
+	);
+
+
+
+-- 상품
+CREATE TABLE product (
+	productNum   INT          primary key,
+	productType  VARCHAR(30)  NOT NULL,     
+	productName  VARCHAR(30)  NOT NULL,     
+	explan       VARCHAR(300)  NOT NULL,    
+	price        INT          NOT NULL,    
+        inventory    INT          NOT NULL,
+        proImg       VARCHAR(300)  NOT NULL    
+);
+
+-- 상품
+CREATE UNIQUE INDEX PK_product
+	ON product ( -- 상품
+		productNum DESC -- 상품번호
+	);
+
+
+
+-- 장바구니
+CREATE TABLE basket (
+	basketNum   INT          primary key, 
+	memId       VARCHAR(30)  NOT NULL,     
+	productNum  INT          NOT NULL,     
+	numbers     INT          NOT NULL    
+);
+
+
+-- 장바구니
+CREATE UNIQUE INDEX PK_basket
+	ON basket ( -- 장바구니
+		basketNum DESC -- 장바구니 번호
+	);
+
+
+
+-- 결제
+CREATE TABLE payment(
+	paymentNum          INT          primary key, 
+	memId               VARCHAR(30)  NOT NULL,     
+	productNum          INT          NOT NULL,    
+	numbers             INT          NOT NULL,     
+	address             VARCHAR(60)  NOT NULL,     
+	hp                  VARCHAR(30)  NOT NULL,     
+	creditcardNum       VARCHAR(30)  NOT NULL,     
+	creditcardPassword  VARCHAR(10)  NOT NULL    
+);
+
+
+-- 결제
+CREATE UNIQUE INDEX PK_payment
+	ON payment ( -- 결제
+		paymentNum DESC -- 결제 번호
+	);
+
+
+
+
+-- 게시판
+CREATE TABLE shop_bbs(
+	shop_num    INTEGER        primary key, 
+	memId     VARCHAR(30)    NOT NULL,     
+	title     VARCHAR(60)    NOT NULL,    
+	contents  VARCHAR(300)   NOT NULL,     
+	bbs_date      DATE           NOT NULL, 
+);
+
+
+
+
+-- 게시판
+CREATE UNIQUE INDEX PK_shop_bbs
+	ON shop_bbs ( -- 게시판
+		shop_num DESC -- 게시판 글번호	
+);
+
+
+
+
+-- q&a 게시판
+CREATE TABLE Q&A_bbs(
+	q&a_num    INTEGER        primary key, 
+	memId     VARCHAR(30)    NOT NULL,     
+	title     VARCHAR(60)    NOT NULL,    
+	contents  VARCHAR(300)   NOT NULL,     
+	bbs_date      DATE           NOT NULL, 
+);
+
+
+
+
+-- q&a 게시판
+CREATE UNIQUE INDEX PK_Q&A
+	ON Q&A_bbs ( -- 게시판
+		q&a_num DESC -- 게시판 글번호	
+);
+
+
+--  리뷰 게시판
+CREATE TABLE RV_bbs(
+	rv_num    INTEGER        primary key, 
+	memId     VARCHAR(30)    NOT NULL,     
+	title     VARCHAR(60)    NOT NULL,    
+	contents  VARCHAR(300)   NOT NULL,     
+	bbs_date      DATE           NOT NULL,
+        rv_img     VARCHAR(300)   NOT NULL(사진파일 보류..)
+);
+
+
+
+
+-- 리뷰 게시판
+CREATE UNIQUE INDEX PK_RV_bbs
+	ON RV_bbs ( -- 게시판
+		rv_num DESC -- 게시판 글번호	
+);
+
+
+
+
+-- 게시판 시퀀스
+
+create sequence shop_bbs_seq;
+
+(글번호 자동 증가 .nextval)
+insert into shop_bbs values(shop_bbs_seq.nextval,'alfos77','테스트용1','내용 나오는지 테스트~~',sysdate);
+insert into shop_bbs values(shop_bbs_seq.nextval,'alfos79','테스트용2','내용 나오는지 테스트222~~',sysdate);
+select * from shop_bbs;
+
+
+
+
+-- 댓글
+CREATE TABLE comments (
+	commentsNum        INT            primary key, 
+	bbsNum             INT            NOT NULL,      
+	memId              VARCHAR(30)    NOT NULL,    
+	commentsDate       DATE           NOT NULL,   
+	commentsContents   VARCHAR(300)   NOT NULL     
+);
+
+
+-- 댓글
+CREATE UNIQUE INDEX PK_comment
+	ON comments ( -- 댓글
+		commentsNum  DESC -- 댓글 번호	
+);
+
+-- 댓글 시퀀스
+
+create sequence comments_seq; 

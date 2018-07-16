@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.bit.mybatis.MemMapper">
+   
+    <insert id="insert" parameterType="memVo">
+        INSERT INTO MEMBERS VALUES (#{memId,jdbcType=VARCHAR}, #{memName,jdbcType=VARCHAR}, #{memPassword,jdbcType=VARCHAR},  #{email,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{hp,jdbcType=VARCHAR})
+    </insert>
+ 
+</mapper>

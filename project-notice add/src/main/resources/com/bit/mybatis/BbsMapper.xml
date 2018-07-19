@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+   <mapper namespace="com.bit.mybatis.BbsMapper">
+ 
+    <select id="getbbseditList" parameterType="hashmap" resultType="bbsVo">
+    SELECT bbseditno, title, bbs_date, hit from bbsedit FROME WHERE bbscd = #{bbscd}
+    </select>
+    <insert id="insert" parameterType="bbsVo">
+        INSERT INTO bbsedit (bbseditno, bbscd, title, contents, memId, hit, bbs_date)
+        VALUES
+        (seq_bbsedit.nextval, #{bbscd}, #{title}, #{contents}, #{memId}, 0, sysdate)
+    </insert>
+ 
+    <update id="update" parameterType="bbsVo">
+        UPDATE bbsedit
+        SET title=#{title},contents=#{contents}
+        WHERE bbseditno= #{bbseditno}
+    </update>
+   
+    <delete id="delete" parameterType="int">
+        DELETE FROM bbsedit WHERE bbseidtno = #{bbseditno}
+    </delete>
+
+    <select id="getBbsNm" parameterType="string" resultType="string">
+        SELECT bbsnm FROM shop_bbs WHERE bbscd = #{bbscd}
+    </select>  
+        
+</mapper>

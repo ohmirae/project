@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.bit.mybatis.MemMapper">
+   
+    <insert id="insert" parameterType="memVo">
+        INSERT INTO MEMBERS VALUES (#{memId}, #{memName}, #{memPassword},  #{email}, #{address}, #{hp})
+    </insert>
+ 
+ 
+    <select id="login" resultType="memVo">
+        SELECT MEMID, MEMNAME, MEMPASSWORD, EMAIL, ADDRESS, HP FROM MEMBERS
+        WHERE MEMID = #{memId} AND MEMPASSWORD = #{memPassword}
+    </select>
+    
+    
+    <update id="modify" parameterType="memVo">
+        UPDATE members SET email = #{email}, address = #{address}, hp = #{hp}
+        WHERE memId = #{memId} AND memPassword = #{memPassword}
+    </update>
+   
+    <update id="changePasswd" parameterType="memVo">
+        UPDATE members SET memPassword = #{memPassword} , email = #{email}, address = #{address}, hp = #{hp}  WHERE memId = #{memId}
+    </update>
+    
+<!--    , email = #{email}, address = #{address}, hp = #{hp} -->
+
+ 
+</mapper>

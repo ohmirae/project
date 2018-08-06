@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- <mapper namespace="com.bit.mybatis.CartMapper"> -->
+<mapper namespace="com.bit.mybatis.CartMapper">
+
+<!-- 장바구니 추가 -->
+<insert id="insert" parameterType="cartVo">
+	INSERT INTO basket (basketNum, memId, productNum, quantity, colors, sizename)
+	VALUES (SEQ_basket.nextval, #{memId}, #{productNum}, #{quantity}, #{colors}, #{sizename})
+	<!-- VALUES (basketNum = #{basketNum}, memId = #{memId}, productNum = #{productNum}, quantity = #{quantity}) -->
+</insert>
+
+<select id="test" resultType="int">
+	select productnum from basket where basketnum=1
+</select>
+
+<!-- 장바구니 목록 -->
+<select id="listCart" resultType="cartVo">
+<!-- 	SELECT -->
+<!-- 		c.basketNum, -->
+<!-- 		c.memId, -->
+<!-- 		p.productNum, -->
+<!-- 		m.memName, -->
+<!-- 		p.productName, -->
+<!-- 		c.quantity, -->
+<!-- 		p.price, -->
+<!-- 		(price * quantity) sumPrice -->
+<!-- 	FROM -->
+<!-- 		members m, product p, basket c -->
+<!-- 	WHERE m.memId = c.memId -->
+<!-- 		AND p.productNum = c.productNum -->
+<!-- 		ANd c.memId = #{memId} -->
+<!-- 	ORDER BY -->
+<!-- 		c.basketNum -->
+	SELECT 
+		a.basketnum, b.productNum, b.product_url, b.productname, b.price, a.quantity, c.colors, s.sizename, (b.price * a.quantity) sumPrice
+	FROM 
+		basket A, product B, colorsd C, sizesize s 
+	WHERE 
+		a.memId = #{memId}
+		AND 
+			a.productNum = b.productNum 
+		AND 
+			c.colors = a.colors
+		AND 
+			s.sizename = a.sizename
+</select>
+
+<!-- 장바구니 전체 금액 -->
+<select id="sumPrice" parameterType="string" resultType="int">
+	SELECT 
+		NVL(SUM(price * quantity), 0) AllSum 
+	FROM 
+		basket c, product p 
+	WHERE 
+		c.productNum = p.productNum ANd c.memId = #{value}
+</select>
+
+<!-- 장바구니 수정 -->
+<update id="editCart">
+	UPDATE 
+		basket 
+	SET 
+		quantity = quantity + #{quantity} 
+	WHERE 
+		memId = #{memId} AND productNum = #{productNum}
+</update>
+
+<!-- 장바구니 삭제 -->
+<delete id="delete">
+	DELETE FROM basket 
+	WHERE basketNum = #{basketNum}
+</delete>
+
+<!-- 장바구니 상품 확인 -->
+<select id="countCart" parameterType="hashmap" resultType="int">
+	SELECT COUNT(*) AS CNT 
+	FROM basket 
+	WHERE 
+		memId = #{memId} AND productNum = #{productNum}
+</select>
+
+<!-- 장바구니 수량 변경 -->
+<update id="updateCart">
+	UPDATE basket
+	SET quantity = #{quantity}
+	WHERE
+		memId = #{memId} AND productNum = #{productNum}
+</update>
+
+<select id="colorPro" parameterType="hashmap">
+	select a.colors from basket b, colorsd a, product c where c.productNum = b.productNum and b.colors = a.colors
+</select>
+
+</mapper>

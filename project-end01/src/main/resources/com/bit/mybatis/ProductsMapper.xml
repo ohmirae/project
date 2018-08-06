@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.bit.mybatis.ProductsMapper">
+
+ <select id="getProductsList" parameterType="hashmap" resultType="productsVo">
+   SELECT productNum, productName, explan, price, product_url, attachfilenum 
+  FROM (
+   SELECT rownum r, a.* 
+    FROM (
+     SELECT 
+      a.productNum, productName, explan, price, product_url, 
+      count(distinct(f.attachfileno)) attachfilenum 
+     FROM 
+      product a, attachfile f 
+     WHERE 
+      a.productNum = f.productNum(+) AND 
+      procd = #{procd} 
+     <if test="searchWord != null">
+     AND (productName LIKE '%${searchWord}%' OR
+     explan LIKE '%${searchWord}%')
+     </if>
+     GROUP BY a.productNum, productName, explan, price, product_url 
+     ORDER BY productNum DESC
+    ) a
+  )
+  WHERE r BETWEEN #{start} AND #{end}
+ </select>
+ 
+  <select id="getTotalRecord" parameterType="hashmap" resultType="int">
+  SELECT count(*) FROM product WHERE procd = #{procd}
+ </select> 
+    <insert id="insert" parameterType="productsVo">
+        INSERT INTO product (productNum, procd, productName, price, explan, product_url)
+        VALUES
+        (#{productNum}, #{procd}, #{productName}, #{price}, #{explan}, #{product_url})
+    </insert>
+    
+ 
+    <update id="update" parameterType="productsVo">
+        UPDATE product
+        SET productName=#{productName},explan=#{explan}
+        WHERE productNum=#{productNum}
+    </update>
+   
+    <delete id="delete" parameterType="int">
+        DELETE FROM product WHERE productNum = #{productNum}
+    </delete>
+
+    <select id="getProductsNum" parameterType="string" resultType="string">
+        SELECT pronm FROM products WHERE procd = #{procd}
+    </select>  
+     
+    <resultMap type="ProductsVo" id="ProductsClob">
+        <result property="explan"  column="explan" javaType="java.lang.String"/>
+    </resultMap>
+   
+    <select id="getProductsVo" parameterType="int" resultMap="ProductsClob">
+        SELECT productNum, productName, explan, price, product_url
+        FROM product
+        WHERE productNum = #{productNum}
+    </select>
+    
+    <select id="getNextProductsVo" parameterType="hashmap" resultType="productsVo">
+  SELECT productNum, productName
+  FROM
+  (SELECT rownum r,a.*
+  FROM
+  (SELECT productNum, productName FROM product WHERE procd = #{procd} AND productNum &gt; #{productNum}
+  ORDER BY productNum) a)
+  WHERE r = 1
+ </select>
+ 
+ <select id="getPrevProductsVo" parameterType="hashmap" resultType="productsVo">
+ SELECT productNum, productName
+  FROM
+  (SELECT rownum r,a.*
+  FROM
+  (SELECT productNum, productName FROM product WHERE procd = #{procd} AND productNum &lt; #{productNum}
+  ORDER BY productNum) a)
+  WHERE r = 1
+ </select> 
+ 
+  <select id="getNewProductsVo" resultType="productsVo">
+  SELECT productNum, productName, explan, price , product_url
+  FROM (SELECT * FROM PRODUCT ORDER BY productNum DESC) 
+  WHERE ROWNUM = 1
+ </select> 
+ 
+ <insert id="insertAttachFile" parameterType="AttachFile">
+  INSERT INTO attachfile (attachfileno, filename, filetype, filesize, productNum)
+  VALUES
+  (seq_attachfile.nextval, #{filename}, #{filetype}, #{filesize}, #{productNum})
+ </insert> 
+
+ <select id="getAttachFileList" parameterType="int" resultType="AttachFile">
+  SELECT attachfileno, filename, filetype, filesize, productNum 
+  FROM attachfile 
+  WHERE productNum = #{productNum} 
+  ORDER BY attachfileno
+ </select>
+   
+</mapper>
+ 
+ 
+<!--     <select id="getProductsList" parameterType="hashmap" resultType="productsVo"> -->
+<!--   SELECT productNum, productName, product_url, price, attachfilenum  -->
+<!--   FROM ( -->
+<!--    SELECT rownum r, a.*  -->
+<!--     FROM ( -->
+<!--      SELECT -->
+<!--       a.productNum, productName, product_url, price,  -->
+<!--       count(distinct(f.attachfileno)) attachfilenum -->
+<!--      FROM  -->
+<!--      product a, attachfile f -->
+<!--      WHERE  -->
+<!--      a.productNum = f.productNum(+) AND      -->
+<!--      procd = #{procd}  -->
+<!--      <if test="searchWord != null"> -->
+<!--      AND (productName LIKE '%${searchWord}%' OR -->
+<!--      explan LIKE '%${searchWord}%') -->
+<!--      </if> -->
+<!--      GROUP BY a.productNum, productName, product_url, price -->
+<!--      ORDER BY productNum DESC -->
+<!--     ) a -->
+<!--   ) -->
+<!--   WHERE r BETWEEN #{start} AND #{end} -->
+<!--  </select> -->
+ 
+ 
+        

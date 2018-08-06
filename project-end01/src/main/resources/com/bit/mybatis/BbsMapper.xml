@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bit.mybatis.BbsMapper">
+
+
+ <select id="getbbseditList" parameterType="hashmap" resultType="bbsVo">
+  SELECT bbseditno, title, bbs_date, hit, attachfilenum, commentno
+  FROM (
+   SELECT rownum r, a.* 
+    FROM (
+     SELECT 
+      a.bbseditno, title, a.bbs_date, hit,
+      count(distinct(f.attachfileno)) attachfilenum,
+      count(distinct(c.commentno)) commentno
+     FROM 
+      bbsedit a, attachfile f, comments c
+     WHERE 
+      a.bbseditno = f.bbseditno(+) AND 
+      a.bbseditno = c.bbseditno(+) AND
+      bbscd = #{bbscd} 
+     <if test="searchWord != null">
+     AND (title LIKE '%${searchWord}%' OR
+     contents LIKE '%${searchWord}%')
+     </if>
+     GROUP BY a.bbseditno, title, a.bbs_date, hit
+     ORDER BY bbseditno DESC
+    ) a
+  )
+  WHERE r BETWEEN #{start} AND #{end}
+ </select>
+
+
+
+<!-- 	<select id="getbbseditList" parameterType="hashmap" -->
+<!-- 		resultType="bbsVo"> -->
+<!-- 		SELECT bbseditno, title, bbs_date, hit ,attachfilenum, commentno -->
+<!-- 		FROM ( -->
+<!-- 		SELECT rownum r, a.* -->
+<!-- 		FROM ( -->
+<!-- 		SELECT -->
+<!-- 		a.bbseditno, title, a.bbs_date, hit, -->
+<!-- 		count(distinct(f.attachfileno)) attachfilenum -->
+<!-- 		count(distinct(c.commentno)) commentno -->
+<!-- 		FROM -->
+<!-- 		bbsedit a, attachfile f,comments c -->
+<!-- 		WHERE -->
+<!-- 		a.bbseditno = f.bbseditno(+) AND -->
+<!-- 		a.bbseditno = -->
+<!-- 		c.bbseditno(+) AND -->
+<!-- 		bbscd = #{bbscd} -->
+<!-- 		<if test="searchWord != null"> -->
+<!-- 			AND (title LIKE '%' || #{searchWord} || '%' OR -->
+<!-- 			contents -->
+<!-- 			LIKE '%' || #{searchWord} || '%') -->
+<!-- 		</if> -->
+<!-- 		GROUP BY a.bbseditno, title, a.bbs_date, hit -->
+<!-- 		ORDER BY bbseditno DESC -->
+<!-- 		)a -->
+<!-- 		) -->
+<!-- 		WHERE r BETWEEN #{start} AND #{end} -->
+<!-- 	</select> -->
+
+	<select id="getTotalRecord" parameterType="hashmap"
+		resultType="int">
+		SELECT count(*) FROM bbsedit WHERE bbscd = #{bbscd}
+		<if test="searchWord != null">
+			AND (title LIKE '%'|| #{searchWord} || '%' OR
+			contents LIKE
+			'%' ||#{searchWord} || '%')
+		</if>
+	</select>
+
+	<!-- <select id="getbbseditList" parameterType="hashmap" -->
+	<!-- resultType="bbsVo"> -->
+	<!-- SELECT bbseditno, title, bbs_date, hit from bbsedit FROME -->
+	<!-- WHERE bbscd = #{bbscd} -->
+	<!-- </select> -->
+
+
+	<insert id="insert" parameterType="bbsVo">
+		INSERT INTO bbsedit
+		(bbseditno, bbscd, title, contents, memId, hit,
+		bbs_date)
+		VALUES
+		(seq_bbsedit.nextval, #{bbscd}, #{title}, #{contents}, #{memId}, 0,
+		sysdate)
+	</insert>
+
+	<update id="update" parameterType="bbsVo">
+		UPDATE bbsedit
+		SET
+		title=#{title},contents=#{contents}
+		WHERE bbseditno= #{bbseditno}
+	</update>
+
+	<delete id="delete" parameterType="int">
+		DELETE FROM bbsedit WHERE
+		bbseditno = #{bbseditno}
+	</delete>
+
+	<select id="getBbsNm" parameterType="string" resultType="string">
+		SELECT
+		bbsnm FROM shop_bbs WHERE bbscd = #{bbscd}
+	</select>
+
+	<update id="increaseHit" parameterType="int">
+		UPDATE bbsedit SET hit =
+		hit + 1 WHERE bbseditno = #{bbseditno}
+	</update>
+
+	<resultMap type="BbsVo" id="BbsVoCont">
+		<result property="contents" column="contents"  javaType="java.lang.String" />
+		<!-- javaType="java.lang.String" -->
+	</resultMap>
+
+	<select id="getBbsVo" parameterType="int" resultMap="BbsVoCont">
+		SELECT
+		bbseditno, title, contents, memId, hit, bbs_date
+		FROM bbsedit
+		WHERE
+		bbseditno = #{bbseditno}
+	</select>
+
+
+	<!-- 이전, 다음 글 보기 -->
+	<select id="getPrevBbsVo" parameterType="hashmap"
+		resultType="bbsVo">
+		SELECT bbseditno, title
+		FROM
+		(SELECT rownum r,a.*
+		FROM
+		(SELECT bbseditno,
+		title FROM bbsedit WHERE bbscd = #{bbscd} AND
+		bbseditno &lt;
+		#{bbseditno}
+		ORDER BY bbseditno DESC) a)
+		WHERE r = 1
+		<!-- &lt; -->
+	</select>
+
+	<select id="getNextBbsVo" parameterType="hashmap"
+		resultType="bbsvO">
+		SELECT bbseditno, title
+		FROM
+		(SELECT rownum r,a.*
+		FROM
+		(SELECT bbseditno,
+		title FROM bbsedit WHERE bbscd = #{bbscd} AND
+		bbseditno &gt;
+		#{bbseditno}
+		ORDER BY bbseditno) a)
+		WHERE r = 1
+		<!-- &gt; -->
+	</select>
+
+	<select id="getNewBbsVo" resultType="bbsVo">
+		SELECT bbseditno, title,
+		contents, memId, hit, bbs_date
+		FROM (SELECT * FROM bbsedit ORDER BY
+		bbseditno DESC)
+		WHERE ROWNUM = 1
+	</select>
+
+	<insert id="insertAttachFile" parameterType="AttachFile">
+		INSERT INTO
+		attachfile (attachfileno, filename, filetype, filesize,
+		bbseditno)
+		VALUES
+		(seq_attachfile.nextval, #{filename}, #{filetype}, #{filesize},
+		#{bbseditno})
+	</insert>
+
+	<select id="getAttachFileList" parameterType="int"
+		resultType="AttachFile">
+		SELECT attachfileno, filename, filetype, filesize,
+		bbseditno
+		FROM attachfile
+		WHERE bbseditno = #{bbseditno}
+		ORDER BY
+		attachfileno
+	</select>
+
+	<insert id="insertComment" parameterType="comment">
+		INSERT INTO comments (commentno, bbseditno, memId, memo, bbs_date)
+		VALUES (seq_comments.nextval, #{bbseditno}, #{memId}, #{memo}, sysdate)
+	</insert>
+
+	<update id="updateComment" parameterType="comment">
+		UPDATE comments SET memo = #{memo} WHERE commentno = #{commentno}
+	</update>
+
+	<delete id="deleteComment" parameterType="int">
+		DELETE FROM comments WHERE commentno = #{commentno}
+	</delete>
+
+	<select id="getComment" parameterType="int" resultType="comment">
+		SELECT commentno,bbseditno,memId,memo,bbs_date
+		FROM comments
+		WHERE commentno = #{commentno}
+	</select>
+
+	<select id="getCommentList" parameterType="int"
+		resultType="comment">
+		
+		SELECT commentno, bbseditno, memId, memo, bbs_date
+		FROM comments
+		WHERE bbseditno = #{bbseditno}
+		ORDER BY commentno DESC
+	</select>
+
+</mapper>
